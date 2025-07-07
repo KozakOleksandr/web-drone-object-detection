@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+{% load crispy_forms_tags %}
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6a98d4;
+            --accent-color: #98c1d9;
+            --light-color: #f0f5fa;
+            --dark-color: #293241;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--light-color), var(--accent-color));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(106, 152, 212, 0.25);
+            outline: none;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .footer a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+
+        .social-login {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f5f5f5;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .google { color: #DB4437; }
+        .facebook { color: #4267B2; }
+        .twitter { color: #1DA1F2; }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .forgot-password a {
+            color: var(--primary-color);
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .divider:before, .divider:after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background-color: #eee;
+        }
+
+        .divider span {
+            padding: 0 10px;
+            color: #999;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 576px) {
+            .container {
+                border-radius: 0;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+        }
+
+        /* Custom styling for crispy forms */
+        .asteriskField {
+            color: red;
+            margin-left: 2px;
+        }
+
+        .form-text {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Вхід</h2>
+            <p>Увійдіть у свій обліковий запис</p>
+        </div>
+
+        <div class="form-container">
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+
+                <div class="forgot-password">
+                    <a href="#">Забули пароль?</a>
+                </div>
+
+                <button type="submit" class="btn">
+                    <i class="fas fa-sign-in-alt"></i> Увійти
+                </button>
+
+                <div class="divider">
+                    <span>або увійти через</span>
+                </div>
+
+                <div class="social-login">
+                    <a href="#" class="social-btn google">
+                        <i class="fab fa-google"></i>
+                    </a>
+                    <a href="#" class="social-btn facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-btn twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="footer">
+            Немає облікового запису? <a href="{% url 'register' %}">Зареєструватися</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Розпізнавання Відео</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6a98d4;
+            --accent-color: #98c1d9;
+            --light-color: #f0f5fa;
+            --dark-color: #293241;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--light-color), var(--accent-color));
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background-color: var(--dark-color) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: white !important;
+        }
+
+        .btn-outline-light:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 25px 30px;
+            border-bottom: none;
+        }
+
+        .card-header h4 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--accent-color);
+            border-radius: 10px;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+            background-color: var(--light-color);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(152, 193, 217, 0.1);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .upload-area p {
+            color: var(--dark-color);
+            font-size: 16px;
+            margin-bottom: 0;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background-color: #a0b7d6;
+            border-color: #a0b7d6;
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: var(--dark-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #86b3cc;
+            border-color: #86b3cc;
+            color: var(--dark-color);
+        }
+
+        .video-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .video-container video {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .webcam-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .webcam-container video {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .webcam-canvas {
+            display: none;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .loader .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: var(--primary-color);
+        }
+
+        .loader p {
+            color: var(--dark-color);
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .stats-container {
+            background-color: var(--light-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .stats-container h5 {
+            color: var(--dark-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .tab-content {
+            margin-top: 20px;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--dark-color);
+            font-weight: 500;
+            border: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background-color: transparent;
+        }
+
+        .nav-tabs .nav-link:hover:not(.active) {
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        .alert {
+            margin-bottom: 20px;
+        }
+
+        .debug-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            text-align: left;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container d-flex justify-content-between">
+            <a class="navbar-brand" href="/"><i class="fas fa-eye me-2"></i>Розпізнавання Зображень</a>
+            <div>
+                <a href="{% url 'home' %}" class="btn btn-outline-light me-2"><i class="fas fa-image me-1"></i>Зображення</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-light"><i class="fas fa-sign-out-alt me-1"></i>Вийти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <!-- Відображення помилок та повідомлень -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-video me-2"></i>Розпізнавання відео</h4>
+                        <p class="mb-0">Завантажте відео або використовуйте веб-камеру для розпізнавання об'єктів</p>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="videoTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab" aria-controls="upload" aria-selected="true">
+                                    <i class="fas fa-upload me-2"></i>Завантажити відео
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="webcam-tab" data-bs-toggle="tab" data-bs-target="#webcam" type="button" role="tab" aria-controls="webcam" aria-selected="false">
+                                    <i class="fas fa-camera me-2"></i>Веб-камера
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="videoTabContent">
+                            <!-- Вкладка завантаження відео -->
+                            <div class="tab-pane fade show active" id="upload" role="tabpanel" aria-labelledby="upload-tab">
+                                <form id="uploadForm" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="upload-area" id="dropArea">
+                                        <i class="fas fa-film"></i>
+                                        <p>Перетягніть сюди відео або натисніть, щоб вибрати файл</p>
+                                        <input type="file" id="videoInput" name="video" accept="video/*" class="form-control" style="display: none;">
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="button" class="btn btn-primary" id="processBtn" disabled>
+                                            <i class="fas fa-cogs me-2"></i>Обробити відео
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <div class="loader" id="uploadLoader">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Завантаження...</span>
+                                    </div>
+                                    <p>Обробка відео, будь ласка, зачекайте...</p>
+                                </div>
+
+                                <!-- Контейнер для результату обробки відео -->
+                                <div class="video-container" id="resultContainer" style="display: none;">
+                                    <h5 class="mb-3"><i class="fas fa-check-circle me-2"></i>Результат обробки:</h5>
+                                    <video id="resultVideo" controls>
+                                        <source id="resultVideoSource" src="" type="video/mp4">
+                                    </video>
+                                    <div class="stats-container mt-3">
+                                        <h5><i class="fas fa-chart-bar me-2"></i>Статистика розпізнавання:</h5>
+                                        <div id="videoStats"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Діагностична інформація -->
+                                <div class="debug-info" id="debugInfo" style="display: none;">
+                                    <h6>Діагностична інформація:</h6>
+                                    <div id="debugContent"></div>
+                                </div>
+                            </div>
+
+                            <!-- Вкладка веб-камери -->
+                            <div class="tab-pane fade" id="webcam" role="tabpanel" aria-labelledby="webcam-tab">
+                                <div class="text-center mb-3">
+                                    <button id="startWebcam" class="btn btn-primary me-2">
+                                        <i class="fas fa-play me-2"></i>Запустити камеру
+                                    </button>
+                                    <button id="stopWebcam" class="btn btn-secondary" disabled>
+                                        <i class="fas fa-stop me-2"></i>Зупинити камеру
+                                    </button>
+                                </div>
+
+                                <div class="webcam-container">
+                                    <video id="webcamVideo" autoplay playsinline style="display: none;"></video>
+                                    <canvas id="webcamCanvas" class="webcam-canvas"></canvas>
+                                    <div id="outputCanvas" style="max-width: 100%;"></div>
+                                </div>
+
+                                <div class="stats-container mt-3" id="webcamStats" style="display: none;">
+                                    <h5><i class="fas fa-chart-bar me-2"></i>Статистика розпізнавання в реальному часі:</h5>
+                                    <div id="webcamStatsContent"></div>
+                                    <div class="mt-2">
+                                        <span id="fpsCounter" class="badge bg-primary">0 FPS</span>
+                                        <span id="detectionCounter" class="badge bg-success ms-2">0 об'єктів</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Елементи для завантаження відео
+            const dropArea = document.getElementById('dropArea');
+            const videoInput = document.getElementById('videoInput');
+            const processBtn = document.getElementById('processBtn');
+            const uploadForm = document.getElementById('uploadForm');
+            const uploadLoader = document.getElementById('uploadLoader');
+            const resultContainer = document.getElementById('resultContainer');
+            const resultVideo = document.getElementById('resultVideo');
+            const resultVideoSource = document.getElementById('resultVideoSource');
+            const videoStats = document.getElementById('videoStats');
+            const debugInfo = document.getElementById('debugInfo');
+            const debugContent = document.getElementById('debugContent');
+
+            // Елементи для веб-камери
+            const startWebcamBtn = document.getElementById('startWebcam');
+            const stopWebcamBtn = document.getElementById('stopWebcam');
+            const webcamVideo = document.getElementById('webcamVideo');
+            const webcamCanvas = document.getElementById('webcamCanvas');
+            const outputCanvas = document.getElementById('outputCanvas');
+            const webcamStats = document.getElementById('webcamStats');
+            const webcamStatsContent = document.getElementById('webcamStatsContent');
+            const fpsCounter = document.getElementById('fpsCounter');
+            const detectionCounter = document.getElementById('detectionCounter');
+
+            // Функція для тестування формування FormData
+            function testFormData() {
+                try {
+                    const testFile = new File(["test"], "test.txt", { type: "text/plain" });
+                    const testForm = new FormData();
+                    testForm.append('test', testFile);
+
+                    let formDataContent = '';
+                    for (const pair of testForm.entries()) {
+                        formDataContent += `${pair[0]}: ${pair[1].name}, ${pair[1].size} bytes<br>`;
+                    }
+
+                    return `FormData тест успішний. Дані: <br>${formDataContent}`;
+                } catch (e) {
+                    return `Помилка FormData: ${e.message}`;
+                }
+            }
+
+            // Показати діагностичну інформацію
+            debugInfo.style.display = 'block';
+            debugContent.innerHTML = `
+                <p>Браузер: ${navigator.userAgent}</p>
+                <p>FormData тест: ${testFormData()}</p>
+            `;
+
+            // Обробники для функції перетягування
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('bg-light');
+                dropArea.style.borderColor = '#4a6fa5';
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('bg-light');
+                dropArea.style.borderColor = '#98c1d9';
+            }
+
+            // Обробник перетягування файлу
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length) {
+                    videoInput.files = files;
+                    handleVideoSelect();
+                }
+            }
+
+            // Обробник натискання на область для завантаження
+            dropArea.addEventListener('click', function() {
+                videoInput.click();
+            });
+
+            // Обробник зміни вибраного файлу
+            videoInput.addEventListener('change', handleVideoSelect);
+
+            function handleVideoSelect() {
+                if (videoInput.files.length) {
+                    processBtn.disabled = false;
+                    const fileName = videoInput.files[0].name;
+                    dropArea.innerHTML = `<i class="fas fa-film"></i><p>Обрано файл: ${fileName}</p>`;
+
+                    // Додаємо інформацію про файл у діагностиці
+                    const file = videoInput.files[0];
+                    debugContent.innerHTML += `
+                        <p><strong>Обраний файл:</strong> ${file.name}, ${file.type}, ${file.size} bytes</p>
+                    `;
+                }
+            }
+
+            // Прикріплюємо обробник до кнопки обробки
+            processBtn.addEventListener('click', function() {
+                if (!videoInput.files || videoInput.files.length === 0) {
+                    alert('Будь ласка, виберіть відеофайл спочатку');
+                    return;
+                }
+
+                // Створюємо новий об'єкт FormData
+                const formData = new FormData();
+
+                // Додаємо файл і CSRF-токен
+                const file = videoInput.files[0];
+                formData.append('video', file);
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                // Показуємо індикатор завантаження
+                uploadLoader.style.display = 'block';
+                processBtn.disabled = true;
+
+                // Логуємо формування запиту
+                debugContent.innerHTML += `
+                    <p><strong>Відправка запиту:</strong> файл ${file.name} (${file.size} bytes)</p>
+                `;
+
+                // Відправляємо запит на сервер
+                fetch("{% url 'process_video' %}", {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Помилка ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Логуємо успішну відповідь
+                    debugContent.innerHTML += `
+                        <p><strong>Відповідь отримано:</strong> ${JSON.stringify(data).substring(0, 100)}...</p>
+                    `;
+
+                    // Приховуємо індикатор завантаження
+                    uploadLoader.style.display = 'none';
+                    processBtn.disabled = false;
+
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+
+                    // Відображаємо результати
+                    resultContainer.style.display = 'block';
+                    resultVideoSource.src = data.video_url;
+                    resultVideo.load();
+
+                    // Відображаємо статистику
+                    let statsHtml = '<ul class="list-group">';
+                    data.detections.forEach(detection => {
+                        statsHtml += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                            ${detection.label}
+                            <span class="badge bg-primary rounded-pill">${Math.round(detection.confidence * 100)}%</span>
+                        </li>`;
+                    });
+                    statsHtml += '</ul>';
+                    videoStats.innerHTML = statsHtml;
+                })
+                .catch(error => {
+                    console.error('Помилка:', error);
+                    debugContent.innerHTML += `
+                        <p><strong>Помилка:</strong> ${error.message}</p>
+                    `;
+                    uploadLoader.style.display = 'none';
+                    processBtn.disabled = false;
+                    alert('Сталася помилка при обробці відео: ' + error.message);
+                });
+            });
+
+            // Функції для веб-камери
+            let stream = null;
+            let isProcessingFrame = false;
+            let webcamInterval = null;
+            let lastFrameTime = 0;
+
+            startWebcamBtn.addEventListener('click', async function() {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        }
+                    });
+
+                    webcamVideo.srcObject = stream;
+                    webcamVideo.style.display = 'block';
+                    webcamStats.style.display = 'block';
+
+                    // Налаштування розміру canvas
+                    webcamCanvas.width = 640;
+                    webcamCanvas.height = 480;
+
+                    // Починаємо обробку відео
+                    startWebcamBtn.disabled = true;
+                    stopWebcamBtn.disabled = false;
+
+                    // Запускаємо обробку кадрів
+                    lastFrameTime = performance.now();
+                    webcamInterval = setInterval(processWebcamFrame, 100); // 10 кадрів на сек
+
+                } catch (err) {
+                    console.error("Помилка доступу до веб-камери:", err);
+                    alert("Не вдалося отримати доступ до веб-камери. Перевірте налаштування дозволів.");
+                }
+            });
+
+            stopWebcamBtn.addEventListener('click', function() {
+                if (stream) {
+                    const tracks = stream.getTracks();
+                    tracks.forEach(track => track.stop());
+                    webcamVideo.srcObject = null;
+                    webcamVideo.style.display = 'none';
+
+                    clearInterval(webcamInterval);
+
+                    startWebcamBtn.disabled = false;
+                    stopWebcamBtn.disabled = true;
+
+                    // Очищаємо результати
+                    outputCanvas.innerHTML = '';
+                    webcamStatsContent.innerHTML = '';
+                    fpsCounter.textContent = '0 FPS';
+                    detectionCounter.textContent = '0 об\'єктів';
+                }
+            });
+
+            function processWebcamFrame() {
+                if (isProcessingFrame) return;
+                isProcessingFrame = true;
+
+                const ctx = webcamCanvas.getContext('2d');
+                ctx.drawImage(webcamVideo, 0, 0, webcamCanvas.width, webcamCanvas.height);
+
+                // Конвертуємо дані зображення в blob
+                webcamCanvas.toBlob(function(blob) {
+                    const formData = new FormData();
+                    formData.append('frame', blob, 'webcam-frame.jpg');
+                    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                    fetch("{% url 'process_webcam' %}", {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error(data.error);
+                            return;
+                        }
+
+                        // Оновлюємо вивід з розпізнаними об'єктами
+                        outputCanvas.innerHTML = `<img src="data:image/jpeg;base64,${data.frame}" style="max-width: 100%; border-radius: 8px;">`;
+
+                        // Оновлюємо статистику
+                        updateWebcamStats(data.detections);
+
+                        // Обчислюємо FPS
+                        const now = performance.now();
+                        const fps = 1000 / (now - lastFrameTime);
+                        lastFrameTime = now;
+
+                        fpsCounter.textContent = `${Math.round(fps)} FPS`;
+                        detectionCounter.textContent = `${data.detections.length} об'єктів`;
+
+                        isProcessingFrame = false;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        isProcessingFrame = false;
+                    });
+                }, 'image/jpeg', 0.8);
+            }
+
+            function updateWebcamStats(detections) {
+                // Формуємо статистику по класах
+                const classStats = {};
+
+                detections.forEach(detection => {
+                    if (!classStats[detection.label]) {
+                        classStats[detection.label] = {
+                            count: 0,
+                            avgConfidence: 0
+                        };
+                    }
+
+                    classStats[detection.label].count++;
+                    classStats[detection.label].avgConfidence += detection.confidence;
+                });
+
+                // Обчислюємо середню впевненість для кожного класу
+                for (const cls in classStats) {
+                    classStats[cls].avgConfidence = classStats[cls].avgConfidence / classStats[cls].count;
+                }
+
+                // Формуємо HTML для статистики
+                let statsHtml = '<ul class="list-group">';
+                for (const cls in classStats) {
+                    statsHtml += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${cls}
+                        <div>
+                            <span class="badge bg-secondary me-2">${classStats[cls].count} шт.</span>
+                            <span class="badge bg-primary">${Math.round(classStats[cls].avgConfidence * 100)}%</span>
+                        </div>
+                    </li>`;
+                }
+                statsHtml += '</ul>';
+
+                webcamStatsContent.innerHTML = statsHtml;
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

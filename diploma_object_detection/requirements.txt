@@ -1,0 +1,9 @@
+pandas
+requests
+Pillow
+Django>=3.2
+ultralytics
+opencv-python
+numpy
+django-crispy-forms
+crispy-bootstrap5
