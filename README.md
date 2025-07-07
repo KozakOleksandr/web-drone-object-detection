@@ -99,12 +99,6 @@ This system was developed as part of a Bachelor's qualification work titled:
 
 > "Web-Oriented Information System for Identifying Objects from Unmanned Aerial Vehicles"
 
-## 👤 Author
-
-**Oleksandr Kozak**
-[GitHub](https://github.com/KozakOleksandr)
-[LinkedIn](https://www.linkedin.com/in/oleksandr-kozak/)
-
 ## 📜 License
 
 This project is for academic use. Licensing terms can be added later if required.
